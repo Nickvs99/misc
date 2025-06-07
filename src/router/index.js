@@ -5,6 +5,7 @@ import HomeView from "@/views/HomeView.vue";
 import KeyGeneratorView from "@/views/KeyGeneratorView.vue";
 import TimerView from "@/views/TimerView.vue";
 import TimerMenuView from "@/views/TimerMenuView.vue";
+import WatchList from "@/views/WatchList.vue";
 
 const routes = [
     {
@@ -30,10 +31,13 @@ const routes = [
     {
         path: "/timer/:time",
         name: "timer",
-        component: TimerView,  
-    }
-
-
+        component: TimerView,
+    },
+    {
+        path: "/kijklijst",
+        name: "kijklijst",
+        component: WatchList,
+    },
 ];
 
 const router = createRouter({
@@ -43,12 +47,12 @@ const router = createRouter({
 
 /**
  * Since this is a SPA, directly going to a url would not work, when
- * the site is published on github pages. Instead github pages would throw a 404 error. 
+ * the site is published on github pages. Instead github pages would throw a 404 error.
  * This then displays the 404.html in the public directory. This file redirects to the index
  * page with a string query. This string query is catched by vue and the user is redirected
  * accordingly.
  */
-router.beforeEach(to => {    
+router.beforeEach((to) => {
     if (to.query.redirect) {
         let direct = to.query.redirect.replace(" ", "%20");
         router.replace(direct);
