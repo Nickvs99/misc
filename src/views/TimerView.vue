@@ -104,6 +104,8 @@ export default {
 
     font-size: 10rem;
 
+    user-select: none;
+
     &.finished {
         background-color: red;
         color: white;
