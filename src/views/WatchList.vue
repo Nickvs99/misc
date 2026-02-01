@@ -53,7 +53,7 @@ export default {
                 () => {
                     this.parseUploadedData(reader.result);
                 },
-                false
+                false,
             );
             const text = reader.readAsText(file);
 
@@ -71,6 +71,12 @@ export default {
             this.header = lines[0];
             for (let i = 1; i < lines.length; i++) {
                 const lineSplit = lines[i].split(",");
+
+                if (lineSplit.length != 2) {
+                    console.warn(`The line "${lines[i]}" has an unexpected number of seperator symbols.`);
+                    continue;
+                }
+
                 this.watchList.push({
                     title: lineSplit[0],
                     originalScore: Number(lineSplit[1]),
