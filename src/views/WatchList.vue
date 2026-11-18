@@ -15,18 +15,18 @@
 
                     <th></th>
                     <th></th>
-                    <th>Totaal</th>
+                    <th>Score</th>
                 </tr>
-                <tr v-for="item in this.orderedItems(this.watchList)" :key="item.title">
+                <tr v-for="item in this.orderedItems(this.watchList)" :key="item.originalOrder">
                     <td>{{ item.position }}</td>
                     <td>{{ item.title }}</td>
                     <td>{{ item.originalScore }}</td>
                     <td>{{ item.bonus }}</td>
 
-                    <td><button @click="item.bonus -= 1" class="watchlist-order-button">&uarr;</button></td>
-                    <td><button @click="item.bonus += 1" class="watchlist-order-button">&darr;</button></td>
+                    <td><button @click="this.upvote(item)" class="watchlist-order-button">&uarr;</button></td>
+                    <td><button @click="this.downvote(item)" class="watchlist-order-button">&darr;</button></td>
 
-                    <td>{{ item.originalScore + item.bonus }}</td>
+                    <td>{{ formatScore(item.score) }}</td>
                 </tr>
             </table>
         </div>
@@ -77,11 +77,14 @@ export default {
                     continue;
                 }
 
+                const originalScore = Number(lineSplit[1]);
+
                 this.watchList.push({
                     title: lineSplit[0],
-                    originalScore: Number(lineSplit[1]),
+                    originalScore: originalScore,
                     bonus: 0,
                     position: i,
+                    score: originalScore,
                 });
             }
 
@@ -97,8 +100,8 @@ export default {
         },
 
         sortWatchListFn(a, b) {
-            let scoreA = a.originalScore + a.bonus;
-            let scoreB = b.originalScore + b.bonus;
+            let scoreA = a.score;
+            let scoreB = b.score;
 
             if (scoreA > scoreB) return 1;
             else if (scoreA == scoreB) {
@@ -112,6 +115,32 @@ export default {
             if (a.originalScore > b.originalScore) return 1;
             if (a.originalScore == b.originalScore) return 0;
             else return -1;
+        },
+
+        upvote(item) {
+            const b = 0.7667667;
+
+            item.bonus -= 1;
+
+            const newRawScore = item.score * b;
+            let diff = Math.min(newRawScore - item.score, -1);
+
+            item.score += diff;
+        },
+        downvote(item) {
+            const b = 0.7667667;
+
+            item.bonus += 1;
+
+            const newRawScore = item.score / b;
+            let diff = Math.max(newRawScore - item.score, 1);
+            item.score += diff;
+        },
+
+        formatScore(score) {
+            let integer = parseInt(score);
+            if (score == integer) return score;
+            else return parseFloat(score).toFixed(2);
         },
 
         saveOrder() {
