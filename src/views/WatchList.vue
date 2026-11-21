@@ -17,7 +17,12 @@
                     <th></th>
                     <th>Score</th>
                 </tr>
-                <tr v-for="item in this.orderedItems(this.watchList)" :key="item.originalOrder">
+                <tr
+                    v-for="item in this.orderedItems(this.watchList)"
+                    :key="item.orignalScore"
+                    :id="this.getId(item)"
+                    :class="{ highlightItem: this.highlightItem == item }"
+                >
                     <td>{{ item.position }}</td>
                     <td>{{ item.title }}</td>
                     <td>{{ item.originalScore }}</td>
@@ -40,6 +45,8 @@ export default {
             watchList: null,
             header: null,
             lineSeperator: "\r\n",
+            scoreFactor: 0.7667667,
+            highlightItem: null,
         };
     },
 
@@ -118,29 +125,53 @@ export default {
         },
 
         upvote(item) {
-            const b = 0.7667667;
-
             item.bonus -= 1;
 
-            const newRawScore = item.score * b;
+            const newRawScore = item.score * this.scoreFactor;
             let diff = Math.min(newRawScore - item.score, -1);
 
             item.score += diff;
-        },
-        downvote(item) {
-            const b = 0.7667667;
 
+            this.animate(item);
+        },
+
+        downvote(item) {
             item.bonus += 1;
 
-            const newRawScore = item.score / b;
+            const newRawScore = item.score / this.scoreFactor;
             let diff = Math.max(newRawScore - item.score, 1);
             item.score += diff;
+
+            this.animate(item);
         },
 
         formatScore(score) {
             let integer = parseInt(score);
             if (score == integer) return score;
             else return parseFloat(score).toFixed(2);
+        },
+
+        animate(item) {
+            this.highlightItem = item;
+            setTimeout(() => {
+                this.scrollTo(item);
+            }, 10);
+        },
+
+        scrollTo(item) {
+            const el = document.getElementById(this.getId(item));
+
+            const viewportHeight = window.innerHeight;
+
+            window.scrollTo({
+                top: el.offsetTop - viewportHeight / 2,
+                left: 0,
+                behavior: "smooth",
+            });
+        },
+
+        getId(item) {
+            return "item_" + item.originalScore;
         },
 
         saveOrder() {
@@ -186,13 +217,30 @@ export default {
                 padding: 1px;
             }
         }
-        tr:nth-child(odd) td {
+        tr:nth-child(odd):not(:first-child) {
             background-color: #f3f3f3;
         }
     }
     .watchlist-order-button {
         padding: 0.5em;
         font-size: 1.25em;
+    }
+
+    @keyframes highlight-animation {
+        0% {
+            background-color: auto;
+        }
+
+        50% {
+            background-color: rgba(255, 215, 0, 0.3);
+        }
+
+        100% {
+            background-color: auto;
+        }
+    }
+    .highlightItem {
+        animation: highlight-animation 2.5s ease-in-out;
     }
 }
 </style>
